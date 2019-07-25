@@ -1,0 +1,19 @@
+{
+  "name": "mc-api",
+  "version": "1.0.0",
+  "main": "src/index.js",
+  "author": "CF12 <brianx0011@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "bluebird": "^3.5.5",
+    "cors": "^2.8.5",
+    "dotenv": "^8.0.0",
+    "express": "^4.17.1",
+    "helmet": "^3.19.0",
+    "node-fetch": "^2.6.0",
+    "redis": "^2.8.0"
+  },
+  "scripts": {
+    "start": "node src/index.js"
+  }
+}
