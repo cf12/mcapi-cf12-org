@@ -5,15 +5,15 @@ const fetch = require('node-fetch')
 const redis = require('redis')
 const Bluebird = require('bluebird')
 
+// Promisifiy w/ Bluebird
+fetch.Promise = Bluebird
+Bluebird.promisifyAll(redis)
+
 const REDIS_PORT = process.env.REDISCLOUD_URL || 6379
 const PORT = process.env.PORT || 3002
 
 const app = express()
 const redisClient = redis.createClient('redis://192.168.99.100:' + REDIS_PORT)
-
-// Promisifiy w/ Bluebird
-fetch.Promise = Bluebird
-Bluebird.promisifyAll(redis)
 
 // Globals
 global.rClient = redisClient
@@ -26,9 +26,10 @@ app.options('*', cors())
 app.use(helmet())
 app.use(cors())
 
-// Load Redis client as middleware
+// Load custom middleware
 app.use((req, res, next) => {
   req.redis = redisClient
+  req.
   next()
 })
 

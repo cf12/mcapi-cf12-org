@@ -1,52 +1,82 @@
 const router = require('express').Router()
-const fetch = require('node-fetch')
+const User = require('../../classes/Player')
 
 const uuidRegex = /[0-9a-fA-F]{8}\-?[0-9a-fA-F]{4}\-?[0-9a-fA-F]{4}\-?[0-9a-fA-F]{4}\-?[0-9a-fA-F]{12}/
 
-router.get('/:uuid', (req, res) => {
+function getCacheInfo (cacheTime) {
+  return {
+    _source: (cacheTime) ? 'cache' : 'mojang',
+    _cacheTimestamp: (cacheTime) || undefined,
+  }
+}
+
+router.use('/:uuid', (req, res, next) => {
   let { uuid } = req.params
-  
+
   if (!uuidRegex.test(uuid)) {
     res.status(400)
     res.json({
       error: 'Invalid UUID'
     })
+  } else {
+    req.user = new User(uuid)
+    next()
+  }
+})
+
+router.get('/:uuid/', (req, res, next) => {
+  req.user.getProfile()
+    .then(d => {
+      const [ data, cacheTime ] = d
+
+      let textures = data.properties.find(e => e.name === 'textures').value
+      textures = Buffer.from(textures, 'base64')
+      textures = JSON.parse(textures).textures
+
+      res.status(200)
+      res.json({
+        ...getCacheInfo(cacheTime),
+        uuid: data.id,
+        name: data.name,
+
+        textures: {
+          skin: (textures.SKIN) ? textures.SKIN.url : undefined,
+          cape: (textures.CAPE) ? textures.CAPE.url : undefined
+        }
+      })
+    })
+    .catch(next)
+})
+
+router.get('/:uuid/names', (req, res, next) => {
+  req.user.getNames() 
+    .then(d => {
+      const [ data, cacheTime ] = d
+
+      res.status(200)
+      res.json({
+        ...getCacheInfo(cacheTime),
+        current: data[data.length - 1].name,
+        history: data
+      })
+    })
+    .catch(next)
+})
+
+router.use((err, req, res, next) => {
+  if (err instanceof Error) {
+    console.error(err)
+    res.status(500)
+    res.json({
+      error: 'An unknown error has occurred'
+    })
     return
   }
 
-  uuid = uuid.replace(/-/g, '')
-
-  const key = `players:${uuid}`
-  const duration = 20
-
-  rClient.getAsync(key)
-    .then(cachedData => {
-      if (cachedData) {
-        console.log('[i] Cached!')
-        res.status(200)
-        res.json(JSON.parse(cachedData))
-        return
-      } 
-
-      fetch(`https://api.mojang.com/user/profiles/${uuid}/names`).then(fetchRes => {
-        console.log('[i] Fetched!')
-
-        // TODO: Test if res status 204 triggers too many reqs
-        if (fetchRes.status === 204) {
-          res.status(400)
-          res.json({
-            error: 'No player data found'
-          })
-          return
-        }
-
-        fetchRes.json().then(data => {
-          rClient.setex(key, duration, JSON.stringify(data))
-          res.status(200)
-          res.json(data)
-        })
-      })
-    })
+  res.status(err.status)
+  res.json({
+    error: err.msg
+  })
 })
 
 module.exports = router
