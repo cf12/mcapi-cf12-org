@@ -57,7 +57,7 @@ router.get('/:uuid/names', (req, res, next) => {
       res.json({
         ...getCacheInfo(cacheTime),
         current: data[data.length - 1].name,
-        history: data
+        history: data.reverse()
       })
     })
     .catch(next)
