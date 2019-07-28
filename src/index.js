@@ -9,11 +9,11 @@ const Bluebird = require('bluebird')
 fetch.Promise = Bluebird
 Bluebird.promisifyAll(redis)
 
-const REDIS_PORT = process.env.REDISCLOUD_URL || 6379
+const REDIS_URL = process.env.REDISCLOUD_URL || 'redis://localhost:6379'
 const PORT = process.env.PORT || 3002
 
 const app = express()
-const redisClient = redis.createClient('redis://192.168.99.100:' + REDIS_PORT)
+const redisClient = redis.createClient(REDIS_URL, { no_ready_check: true })
 
 // Globals
 global.rClient = redisClient
