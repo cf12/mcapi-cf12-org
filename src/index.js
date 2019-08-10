@@ -20,7 +20,7 @@ global.rClient = redisClient
 global.Promise = Bluebird
 
 // Enable CORS Preflight
-app.options('*', cors()) 
+app.options('*', cors())
 
 // Express Middleware
 app.use(helmet())
@@ -29,7 +29,6 @@ app.use(cors())
 // Load custom middleware
 app.use((req, res, next) => {
   req.redis = redisClient
-  req.
   next()
 })
 
