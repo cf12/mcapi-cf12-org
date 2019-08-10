@@ -3,6 +3,7 @@ const helmet = require('helmet')
 const cors = require('cors')
 const fetch = require('node-fetch')
 const redis = require('redis')
+const compression = require('compression')
 const Bluebird = require('bluebird')
 
 // Promisifiy w/ Bluebird
@@ -25,6 +26,7 @@ app.options('*', cors())
 // Express Middleware
 app.use(helmet())
 app.use(cors())
+app.use(compression())
 
 // Load custom middleware
 app.use((req, res, next) => {
