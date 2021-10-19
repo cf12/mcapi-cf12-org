@@ -3,5 +3,10 @@ services:
     build: .
     ports:
       - "8080:8080"
+    networks:
+      - caddy
+    labels:
+      caddy: mcapi.cf12.org
+      caddy.reverse_proxy: "{{upstreams 8080}}"
   redis:
     image: "redis:alpine"
