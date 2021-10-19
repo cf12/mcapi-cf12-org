@@ -1,12 +1,15 @@
 services:
   web:
     build: .
-    ports:
-      - "8080:8080"
+    restart: unless-stopped
     networks:
       - caddy
     labels:
       caddy: mcapi.cf12.org
-      caddy.reverse_proxy: "{{upstreams 8080}}"
+      caddy.reverse_proxy: "{{upstreams}}"
   redis:
     image: "redis:alpine"
+
+networks:
+  caddy:
+    external: true
