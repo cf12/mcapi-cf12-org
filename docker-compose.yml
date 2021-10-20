@@ -10,9 +10,10 @@ services:
       caddy.reverse_proxy: "{{upstreams 8080}}"
 
   redis:
+    image: "redis:alpine"
+    restart: unless-stopped
     networks:
       - default
-    image: "redis:alpine"
 
 networks:
   caddy:
