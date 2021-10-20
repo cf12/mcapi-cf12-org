@@ -3,11 +3,15 @@ services:
     build: .
     restart: unless-stopped
     networks:
+      - default
       - caddy
     labels:
       caddy: mcapi.cf12.org
-      caddy.reverse_proxy: "{{upstreams}}"
+      caddy.reverse_proxy: "{{upstreams 8080}}"
+
   redis:
+    networks:
+      - default
     image: "redis:alpine"
 
 networks:
